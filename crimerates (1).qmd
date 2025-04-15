@@ -1,0 +1,87 @@
+---
+title: "Crime Rates Across the States"
+format: html
+author: Leila Annous, Sirine Daghestani, Reeba Mathew"
+---
+
+## Research Questions
+
+1.  **Question 1**: Has the violent crime rate in New Jersey significantly changed over time?
+2.  **Question 2**: Is property burglary significantly different between New Jersey and New York?
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+state_crime <- read.csv("state_crime.csv")
+```
+
+## Inferential Statistics
+
+#### Question 1: Has the violent crime rate in New Jersey significantly changed over time?
+
+```{r}
+nj_data <- state_crime |>
+  filter(State == "New Jersey")
+model_violent_crime_rate_over_time <- lm(Data.Rates.Violent.All ~ Year,
+                                         data = nj_data)
+summary(model_violent_crime_rate_over_time)
+
+```
+
+The results indicated that there was no statistically significant relationship between year and violent crime rate (p = 0.462). The coefficient for year was 0.882, suggesting a very slight increase in violent crime over time, but this trend was not meaningful. Additionally, the R-squared value was only 0.009, meaning that year accounted for less than 1% of the variance in violent crime rates. Therefore, the analysis suggests that violent crime rates in New Jersey have not significantly changed over the years covered by the data.
+
+#### Question 2: Is property burglary significantly different between New Jersey and New York?
+
+```{r}
+nj_ny_data <- state_crime |>
+  filter(State == "New Jersey" |
+          State == "New York") 
+
+t.test(Data.Rates.Property.Burglary ~ State, 
+       data = nj_ny_data)
+
+```
+
+**Conclusion:**\
+A two-sample t-test showed no significant difference in burglary rates between New Jersey and New York (*t* = -1.07, *p* = 0.29). On average, New York had a higher burglary rate (925.13) than New Jersey (826.05), but this difference was not statistically significant. This suggests that any variation in burglary rates between the two states could be due to random chance.
+
+#### Descriptive Analysis
+
+### Histogram of Violent Crime Rates in New Jersey
+
+```{r}
+state_crime |>
+  filter(State == "New Jersey") |>
+  ggplot(aes(x = Data.Rates.Violent.All)) +
+  geom_histogram(bins = 30)
+```
+
+# Boxplot
+
+```{r}
+state_crime |>
+  filter(State %in% c("New Jersey", "New York")) |>
+  ggplot(aes(y = Data.Rates.Property.All, x = State)) +
+  geom_boxplot()
+```
+
+## Summary of data
+
+```{r}
+
+state_crime %>%
+  filter(State %in% c("New Jersey", "New York")) %>%
+  group_by(State) %>%
+  summarise(
+    mean_burglary = mean(Data.Rates.Property.Burglary, na.rm = TRUE),
+    sd_burglary = sd(Data.Rates.Property.Burglary, na.rm = TRUE),
+    min_burglary = min(Data.Rates.Property.Burglary, na.rm = TRUE),
+    max_burglary = max(Data.Rates.Property.Burglary, na.rm = TRUE)
+  )
+
+
+```
+
+## Conclusion
+
+For our analysis, we used the state crime dataset to explore crime trends in New Jersey and New York. We started with descriptive analysis by creating a histogram of violent crime rates in New Jersey, which showed how these rates were distributed across different years. We also created a boxplot to compare property crime rates between New Jersey and New York, revealing that New York had generally higher and more variable property crime rates. Additionally, we summarized burglary rates by calculating the mean, standard deviation, minimum, and maximum for each state. While New York had a slightly higher average burglary rate than New Jersey, both states showed similar ranges of values. In the inferential analysis, we conducted a linear regression to examine whether violent crime rates in New Jersey have changed over time. The results showed a statistically significant increase (p \< 0.001), with violent crime rising by about 3.73 incidents per 100,000 people per year. However, year alone explained only about 5% of the variation, indicating other factors are likely involved. We also performed a two-sample t-test to compare burglary rates between New Jersey and New York. The test showed no significant difference (p = 0.29), suggesting the difference in average burglary rates could be due to random chance. Overall, our analysis showed a slight upward trend in violent crime over time in New Jersey and no strong evidence of a difference in burglary rates between the two states.
